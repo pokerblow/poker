@@ -1,4 +1,4 @@
-module github.com/chehsunliu/poker
+module github.com/pokerblow/poker
 
 go 1.13
 

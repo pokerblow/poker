@@ -21,18 +21,13 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/chehsunliu/poker"
+	"github.com/pokerblow/poker"
 )
 
 func main() {
-	deck := poker.NewDeck()
-	hand := deck.Draw(7)
-	fmt.Println(hand)
-
-	rank := poker.Evaluate(hand)
-	fmt.Println(rank)
-	fmt.Println(poker.RankString(rank))
+	res := poker.Eval([]string{"As", "Ks", "Qs", "Js", "Ts"})
+	fmt.Println(res.Rank)
+	fmt.Println(res.Hand)
 }
 ```
 

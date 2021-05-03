@@ -1,6 +1,9 @@
 package poker
 
+//Deprecated.
 type Card int32
+
+
 
 var (
 	intRanks [13]int32

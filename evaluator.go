@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+type Result struct {
+	Rank int32
+	Hand
+}
+
 var table *lookupTable
 
 func init() {
@@ -36,11 +41,28 @@ func RankClass(rank int32) int32 {
 	panic(fmt.Sprintf("rank %d is unknown", rank))
 }
 
-func RankString(rank int32) string {
+func rankHand(rank int32) Hand {
 	return rankClassToString[RankClass(rank)]
 }
 
-func Evaluate(cards []Card) int32 {
+//Deprecated, Result has the Hand.
+func RankString(rank int32) string {
+	return string(rankClassToString[RankClass(rank)])
+}
+
+func Eval(cards []string) Result {
+	var a []Card
+	for _, card := range cards {
+		a = append(a, NewCard(card))
+	}
+	rank := evalRank(a)
+	return Result{
+		Rank: rank,
+		Hand: rankHand(rank),
+	}
+}
+
+func evalRank(cards []Card) int32{
 	switch len(cards) {
 	case 5:
 		return five(cards...)
@@ -51,6 +73,11 @@ func Evaluate(cards []Card) int32 {
 	default:
 		panic("Only support 5, 6 and 7 cards.")
 	}
+}
+
+//Deprecated, use Eval.
+func Evaluate(cards []Card) int32 {
+	return evalRank(cards)
 }
 
 func five(cards ...Card) int32 {

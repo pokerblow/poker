@@ -24,16 +24,16 @@ var maxToRankClass = map[int32]int32{
 	maxHighCard:      9,
 }
 
-var rankClassToString = map[int32]string{
-	1: "Straight Flush",
-	2: "Four of a Kind",
-	3: "Full House",
-	4: "Flush",
-	5: "Straight",
-	6: "Three of a Kind",
-	7: "Two Pair",
-	8: "Pair",
-	9: "High Card",
+var rankClassToString = map[int32]Hand{
+	1: StraightFlush,
+	2: FourOfAKind,
+	3: FullHouse,
+	4: Flush,
+	5:  Straight,
+	6: ThreeOfAKind,
+	7: TwoPair,
+	8: Pair,
+	9: HighCard,
 }
 
 type lookupTable struct {
