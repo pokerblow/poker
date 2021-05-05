@@ -2,14 +2,14 @@
 
 [![CircleCI](https://circleci.com/gh/chehsunliu/poker/tree/master.svg?style=shield&circle-token=abebd63b852ce8ecdcdf3f7e597be743d07402e4)](https://circleci.com/gh/chehsunliu/poker/tree/master) [![GoDoc](https://godoc.org/github.com/chehsunliu/poker?status.svg)](https://godoc.org/github.com/chehsunliu/poker) [![codecov](https://codecov.io/gh/chehsunliu/poker/branch/master/graph/badge.svg)](https://codecov.io/gh/chehsunliu/poker)
 
-Poker is ported from the Python library [worldveil/deuces](https://github.com/worldveil/deuces).
+Poker is cloned from the Python library [worldveil/deuces](https://github.com/worldveil/deuces).
 
 ## Installation
 
 Use `go get` to install Poker:
 
 ```sh
-$ go get github.com/chehsunliu/poker
+$ go get github.com/pokerblow/poker
 ```
 
 ## Usage
@@ -25,27 +25,18 @@ import (
 )
 
 func main() {
-	res := poker.Eval([]string{"As", "Ks", "Qs", "Js", "Ts"})
+	res := poker.Eval([]string{"As", "Ks", "Qs", "Js", "Ts", "Ad", "Ac"})
 	fmt.Println(res.Rank)
 	fmt.Println(res.Hand)
+	fmt.Println(res.Cards)
 }
 ```
 
 ```sh
 $ go run ./main.go
-[Kd 4h Qh 3s 8s 5h Jd]
-6695
-High Card
-
-$ go run ./main.go
-[4c Qh Ad 9c 9s 3h 4d]
-3062
-Two Pair
-
-$ go run ./main.go
-[Jh Qd Kd Qs 7d As Qh]
-1742
-Three of a Kind
+1
+Straight Flush
+[As Ks Qs Js Ts]
 ```
 
 ## Performance
