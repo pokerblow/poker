@@ -1,9 +1,8 @@
 package poker
 
-//Deprecated.
-type Card int32
+import "github.com/pokerblow/poker/cardb"
 
-
+type card int32
 
 var (
 	intRanks [13]int32
@@ -42,7 +41,7 @@ func init() {
 	}
 }
 
-func NewCard(s string) Card {
+func cardFromStr(s string) card {
 	rankInt := charRankToIntRank[s[0]]
 	suitInt := charSuitToIntSuit[s[1]]
 	rankPrime := primes[rankInt]
@@ -51,39 +50,42 @@ func NewCard(s string) Card {
 	suit := suitInt << 12
 	rank := rankInt << 8
 
-	return Card(bitRank | suit | rank | rankPrime)
+	return card(bitRank | suit | rank | rankPrime)
 }
 
-func (c *Card) MarshalJSON() ([]byte, error) {
-	return []byte("\"" + c.String() + "\""), nil
+func cardFromB(c cardb.Card) card {
+	return cardFromStr(c.String())
 }
 
-func (c *Card) UnmarshalJSON(b []byte) error {
-	*c = NewCard(string(b[1:3]))
-	return nil
+func toCards(cards []card) []cardb.Card {
+	result := make([]cardb.Card, 0, len(cards))
+	for _, c := range cards {
+		result = append(result, cardb.Card(c.String()))
+	}
+	return result
 }
 
-func (c Card) String() string {
+func (c card) String() string {
 	return string(strRanks[c.Rank()]) + string(intSuitToCharSuit[c.Suit()])
 }
 
-func (c Card) Rank() int32 {
+func (c card) Rank() int32 {
 	return (int32(c) >> 8) & 0xF
 }
 
-func (c Card) Suit() int32 {
+func (c card) Suit() int32 {
 	return (int32(c) >> 12) & 0xF
 }
 
-func (c Card) BitRank() int32 {
+func (c card) BitRank() int32 {
 	return (int32(c) >> 16) & 0x1FFF
 }
 
-func (c Card) Prime() int32 {
+func (c card) Prime() int32 {
 	return int32(c) & 0x3F
 }
 
-func primeProductFromHand(cards []Card) int32 {
+func primeProductFromHand(cards []card) int32 {
 	product := int32(1)
 
 	for _, card := range cards {

@@ -13,7 +13,7 @@ func init() {
 }
 
 type Deck struct {
-	cards []Card
+	cards []card
 }
 
 func NewDeck() *Deck {
@@ -23,15 +23,15 @@ func NewDeck() *Deck {
 }
 
 func (deck *Deck) Shuffle() {
-	deck.cards = make([]Card, len(fullDeck.cards))
+	deck.cards = make([]card, len(fullDeck.cards))
 	copy(deck.cards, fullDeck.cards)
 	rand.Shuffle(len(deck.cards), func(i, j int) {
 		deck.cards[i], deck.cards[j] = deck.cards[j], deck.cards[i]
 	})
 }
 
-func (deck *Deck) Draw(n int) []Card {
-	cards := make([]Card, n)
+func (deck *Deck) Draw(n int) []card {
+	cards := make([]card, n)
 	copy(cards, deck.cards[:n])
 	deck.cards = deck.cards[n:]
 	return cards
@@ -41,12 +41,12 @@ func (deck *Deck) Empty() bool {
 	return len(deck.cards) == 0
 }
 
-func initializeFullCards() []Card {
-	var cards []Card
+func initializeFullCards() []card {
+	var cards []card
 
 	for _, rank := range strRanks {
 		for suit := range charSuitToIntSuit {
-			cards = append(cards, NewCard(string(rank)+string(suit)))
+			cards = append(cards, cardFromStr(string(rank)+string(suit)))
 		}
 	}
 

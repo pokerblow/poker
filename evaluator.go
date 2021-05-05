@@ -2,11 +2,14 @@ package poker
 
 import (
 	"fmt"
+	"github.com/pokerblow/poker/cardb"
 )
 
 type Result struct {
 	Rank int32
 	Hand
+	// Best five cards from evaluation.
+	Cards []cardb.Card
 }
 
 var table *lookupTable
@@ -15,7 +18,7 @@ func init() {
 	table = newLookupTable()
 }
 
-func RankClass(rank int32) int32 {
+func rankClass(rank int32) int32 {
 	targets := [...]int32{
 		maxStraightFlush,
 		maxFourOfAKind,
@@ -42,45 +45,54 @@ func RankClass(rank int32) int32 {
 }
 
 func rankHand(rank int32) Hand {
-	return rankClassToString[RankClass(rank)]
+	return rankClassToString[rankClass(rank)]
 }
 
-//Deprecated, Result has the Hand.
-func RankString(rank int32) string {
-	return string(rankClassToString[RankClass(rank)])
+func rankString(rank int32) string {
+	return string(rankClassToString[rankClass(rank)])
+}
+
+func EvalCards(cards []cardb.Card) Result {
+	a := make([]card, 0, len(cards))
+	for _, card := range cards {
+		a = append(a, cardFromB(card))
+	}
+	return eval(a)
 }
 
 func Eval(cards []string) Result {
-	var a []Card
+	a := make([]card, 0, len(cards))
 	for _, card := range cards {
-		a = append(a, NewCard(card))
+		a = append(a, cardFromStr(card))
 	}
-	rank := evalRank(a)
-	return Result{
-		Rank: rank,
-		Hand: rankHand(rank),
-	}
+	return eval(a)
 }
 
-func evalRank(cards []Card) int32{
-	switch len(cards) {
+func eval(incoming []card) Result {
+	var bestCards []card
+	var bestRank int32
+	switch len(incoming) {
 	case 5:
-		return five(cards...)
+		bestRank, bestCards = five(incoming...), incoming
 	case 6:
-		return six(cards...)
+		bestRank, bestCards = six(incoming...)
 	case 7:
-		return seven(cards...)
+		bestRank, bestCards = seven(incoming...)
 	default:
 		panic("Only support 5, 6 and 7 cards.")
 	}
+	return Result{
+		Rank: bestRank,
+		Hand: rankHand(bestRank),
+		Cards: toCards(bestCards),
+	}
 }
 
-//Deprecated, use Eval.
-func Evaluate(cards []Card) int32 {
-	return evalRank(cards)
+func evaluate(cards []card) int32 {
+	return eval(cards).Rank
 }
 
-func five(cards ...Card) int32 {
+func five(cards ...card) int32 {
 	if cards[0]&cards[1]&cards[2]&cards[3]&cards[4]&0xF000 != 0 {
 		handOR := (cards[0] | cards[1] | cards[2] | cards[3] | cards[4]) >> 16
 		prime := primeProductFromRankBits(int32(handOR))
@@ -91,36 +103,40 @@ func five(cards ...Card) int32 {
 	return table.unsuitedLookup[prime]
 }
 
-func six(cards ...Card) int32 {
-	var minimum int32 = maxHighCard
-	targets := make([]Card, len(cards))
+func six(cards ...card) (int32, []card) {
+	var bestCombRank int32 = maxHighCard
+	var bestComb []card
+	targets := make([]card, len(cards))
 
 	for i := 0; i < len(cards); i++ {
 		copy(targets, cards)
 		targets := append(targets[:i], targets[i+1:]...)
 
 		score := five(targets...)
-		if score < minimum {
-			minimum = score
+		if score < bestCombRank {
+			bestCombRank = score
+			bestComb = targets
 		}
 	}
 
-	return minimum
+	return bestCombRank, bestComb
 }
 
-func seven(cards ...Card) int32 {
-	var minimum int32 = maxHighCard
-	targets := make([]Card, len(cards))
+func seven(cards ...card) (int32, []card) {
+	var bestCombRank int32 = maxHighCard
+	var bestComb []card
+	targets := make([]card, len(cards))
 
 	for i := 0; i < len(cards); i++ {
 		copy(targets, cards)
 		targets := append(targets[:i], targets[i+1:]...)
 
-		score := six(targets...)
-		if score < minimum {
-			minimum = score
+		score, bestCards := six(targets...)
+		if score < bestCombRank {
+			bestCombRank = score
+			bestComb = bestCards
 		}
 	}
 
-	return minimum
+	return bestCombRank, bestComb
 }

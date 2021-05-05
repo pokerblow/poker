@@ -2,6 +2,7 @@ package poker
 
 import (
 	"encoding/json"
+	"github.com/pokerblow/poker/cardb"
 	"testing"
 
 	"github.com/loganjspears/joker/hand"
@@ -25,7 +26,7 @@ func TestRankString(t *testing.T) {
 	}
 
 	for rank := range data {
-		assert.Equal(t, data[rank], RankString(rank))
+		assert.Equal(t, data[rank], rankString(rank))
 	}
 }
 
@@ -103,39 +104,50 @@ var dataJoker3 = []string{
 
 func TestFive(t *testing.T) {
 	for score := range data1 {
-		var cards []Card
+		var cards []card
 
 		err := json.Unmarshal([]byte(data1[score]), &cards)
 		assert.NoError(t, err)
-		assert.Equal(t, score, Evaluate(cards))
+		assert.Equal(t, score, evaluate(cards))
 	}
 }
 
 func TestSix(t *testing.T) {
 	for score := range data2 {
-		var cards []Card
+		var cards []card
 
 		err := json.Unmarshal([]byte(data2[score]), &cards)
 		assert.NoError(t, err)
-		assert.Equal(t, score, Evaluate(cards))
+		assert.Equal(t, score, evaluate(cards))
 	}
 }
 
 func TestSeven(t *testing.T) {
 	for score := range data3 {
-		var cards []Card
+		var cards []card
 
 		err := json.Unmarshal([]byte(data3[score]), &cards)
 		assert.NoError(t, err)
-		assert.Equal(t, score, Evaluate(cards))
+		assert.Equal(t, score, evaluate(cards))
 	}
 }
 
+func TestBestCards(t *testing.T) {
+	// todo use table-driven tests
+	res := Eval([]string{"Ad", "7s", "6s", "Ac", "5s", "4s", "3s"})
+	assert.EqualValues(t, 5, len(res.Cards))
+	assert.EqualValues(t, cardb.New("7s"), res.Cards[0])
+	assert.EqualValues(t, cardb.New("6s"), res.Cards[1])
+	assert.EqualValues(t, cardb.New("5s"), res.Cards[2])
+	assert.EqualValues(t, cardb.New("4s"), res.Cards[3])
+	assert.EqualValues(t, cardb.New("3s"), res.Cards[4])
+}
+
 func BenchmarkFivePoker(b *testing.B) {
-	var allCards [][]Card
+	var allCards [][]card
 
 	for score := range data1 {
-		var cards []Card
+		var cards []card
 
 		json.Unmarshal([]byte(data1[score]), &cards)
 		allCards = append(allCards, cards)
@@ -143,7 +155,7 @@ func BenchmarkFivePoker(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for _, cards := range allCards {
-			Evaluate(cards)
+			evaluate(cards)
 		}
 	}
 }
@@ -165,10 +177,10 @@ func BenchmarkFiveJoker(b *testing.B) {
 }
 
 func BenchmarkSixPoker(b *testing.B) {
-	var allCards [][]Card
+	var allCards [][]card
 
 	for score := range data2 {
-		var cards []Card
+		var cards []card
 
 		json.Unmarshal([]byte(data2[score]), &cards)
 		allCards = append(allCards, cards)
@@ -176,7 +188,7 @@ func BenchmarkSixPoker(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for _, cards := range allCards {
-			Evaluate(cards)
+			evaluate(cards)
 		}
 	}
 }
@@ -198,10 +210,10 @@ func BenchmarkSixJoker(b *testing.B) {
 }
 
 func BenchmarkSevenPoker(b *testing.B) {
-	var allCards [][]Card
+	var allCards [][]card
 
 	for score := range data3 {
-		var cards []Card
+		var cards []card
 
 		json.Unmarshal([]byte(data3[score]), &cards)
 		allCards = append(allCards, cards)
@@ -209,7 +221,7 @@ func BenchmarkSevenPoker(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		for _, cards := range allCards {
-			Evaluate(cards)
+			evaluate(cards)
 		}
 	}
 }
